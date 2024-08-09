@@ -1,7 +1,8 @@
+#button guide
+#https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4
+
 from phue import Bridge
 from datetime import datetime
-
-import time
 
 b = Bridge('192.168.1.2')
 

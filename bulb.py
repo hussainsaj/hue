@@ -53,16 +53,15 @@ def check_update(bulbs):
 
         #only update if the time based scene has changed or the bulb has turned on
         if (current_state == True and (current_state != bulb['previous_state'] or new_scene != bulb['previous_scene'])):
-            update_bulb(bulb['id'], new_scene)
-            bulb['state_tick'] += 1
+            #update the light's settings multiple times
+            for a in range(config['optimisation']['maxRetries']):
+                update_bulb(bulb['id'], new_scene)
+                time.sleep(config['optimisation']['pollingInterval'])
+            
+            bulb['previous_state'] = current_state
+            bulb['previous_scene'] = new_scene
 
-            #updates the bulb 5 times to ensure that it worked
-            if (bulb['state_tick'] > 5):
-                bulb['state_tick'] = 0
-                bulb['previous_state'] = current_state
-                bulb['previous_scene'] = new_scene
-
-                print (current_status['lights'][str(bulb['id'])]['name'], new_scene)
+            print (current_status['lights'][str(bulb['id'])]['name'], new_scene)
 
         #if the bulb has turned off
         elif (current_state == False and current_state != bulb['previous_state']):
@@ -82,7 +81,6 @@ bulbs = config['bulbs']
 for i in range(len(bulbs)):
     bulbs[i] = {
         'id': bulbs[i],
-        'state_tick': 0,
         'previous_state': None,
         'previous_scene': None
     }
@@ -94,7 +92,7 @@ b.connect()
 heartbeat_counter = 0
 
 while True:
-    time.sleep(1)
+    time.sleep(config['optimisation']['pollingInterval'])
 
     try:
         bulbs = check_update(bulbs)
@@ -106,9 +104,9 @@ while True:
         print('heartbeat', datetime.now())
         heartbeat_counter = 0
 
-#https://github.com/studioimaginaire/phue
-#button guide
-#https://www.hackster.io/robin-cole/hijack-a-hue-remote-to-control-anything-with-home-assistant-5239a4
 
 #next update
 #transistions
+
+#one get api per all 6 tickers
+#
