@@ -1,0 +1,38 @@
+{
+  "scenes": {
+    "Energize": {
+      "brightness": 254,
+      "colour_temperature": 153
+    },
+    "Concentrate": {
+      "brightness": 254,
+      "colour_temperature": 233
+    },
+    "Read": {
+      "brightness": 254,
+      "colour_temperature": 346
+    },
+    "Relax": {
+      "brightness": 144,
+      "colour_temperature": 447
+    },
+    "Rest": {
+      "brightness": 90,
+      "colour_temperature": 447
+    },
+    "Nightlight": {
+      "brightness": 1,
+      "colour_temperature": 454
+    }
+  },
+  "time_slots": {
+    "00:00":"Rest",
+    "07:00":"Energize",
+    "10:00":"Concentrate",
+    "20:00":"Read",
+    "22:00":"Relax"
+  },
+  "bulbs": [7,8,9],
+  "transistion_period": "30",
+  "ip_address":"192.168.1.2"
+}
