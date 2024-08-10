@@ -54,9 +54,9 @@ def check_update(bulbs):
         #only update if the time based scene has changed or the bulb has turned on
         if (current_state == True and (current_state != bulb['previous_state'] or new_scene != bulb['previous_scene'])):
             #update the light's settings multiple times
-            for a in range(config['optimisation']['maxRetries']):
+            for a in range(config['optimisation']['max_retries']):
                 update_bulb(bulb['id'], new_scene)
-                time.sleep(config['optimisation']['pollingInterval'])
+                time.sleep(config['optimisation']['update_interval'])
             
             bulb['previous_state'] = current_state
             bulb['previous_scene'] = new_scene
@@ -90,9 +90,10 @@ b = Bridge(config['ip_address'])
 b.connect()
 
 heartbeat_counter = 0
+heartbeat_interval = config['heartbeat_interval']/config['optimisation']['polling_interval']
 
 while True:
-    time.sleep(config['optimisation']['pollingInterval'])
+    time.sleep(config['optimisation']['polling_interval'])
 
     try:
         bulbs = check_update(bulbs)
@@ -100,7 +101,7 @@ while True:
         print(f"Error checking bulb: {str(e)}")
 
     heartbeat_counter += 1
-    if heartbeat_counter >= 60:
+    if heartbeat_counter >= heartbeat_interval:
         print('heartbeat', datetime.now())
         heartbeat_counter = 0
 
