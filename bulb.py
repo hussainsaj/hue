@@ -70,8 +70,9 @@ def check_update(bulbs):
     current_status = b.get_api()
     new_scene = get_scene()
 
-    #log transition
-    log_bulb_status(current_status)
+    #log transition every heartbeat
+    if heartbeat_counter >= heartbeat_interval:
+        log_bulb_status(current_status)
 
     #update each bulb in the list
     for i in range(len(bulbs)):
