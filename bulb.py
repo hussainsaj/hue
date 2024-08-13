@@ -26,10 +26,9 @@ def get_scene():
     #creates a new scene
     def calculate_scene(difference, current_scene, next_scene):
         new_scene = {}
+        interpolation_factor = difference / config['transistion_period']
 
-        for key in current_scene:
-            interpolation_factor = difference / config['transistion_period']
-            
+        for key in current_scene:    
             # Interpolate the value for each key
             current_value = current_scene[key]
             next_value = next_scene[key]
@@ -38,7 +37,7 @@ def get_scene():
             # Assign the new value to the new_scene
             new_scene[key] = math.floor(new_value)
 
-        return current_scene
+        return new_scene
 
     #dictionary for all the scenes
     scenes = config['scenes']
