@@ -33,7 +33,7 @@
     "22:00":"Relax"
   },
   "bulbs": [7,8,9],
-  "transistion_period": 30,
+  "transistion_period": 10,
   "ip_address":"192.168.1.2",
   "optimisation": {
     "polling_interval": 5,

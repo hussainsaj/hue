@@ -6,31 +6,6 @@ from datetime import datetime
 import time
 import json
 
-#
-import csv
-import os
-
-#save kitchen bulb's settings in a csv
-def log_bulb_status(current_status):
-    kitchen_bulb = current_status['lights']['6']['state']
-    header = ["time", "brightness", "colour temperature"]
-    data = [datetime.now().strftime('%H:%M:%S'), kitchen_bulb['bri'], kitchen_bulb['ct']]
-    file_name = 'lighting_data.csv'
-    
-    # Check if file exists
-    file_exists = os.path.isfile(file_name)
-
-    # Open the CSV file in append mode
-    with open(file_name, mode='a', newline='') as file:
-        writer = csv.writer(file)
-        
-        # If the file doesn't exist, write the header first
-        if not file_exists:
-            writer.writerow(header)
-        
-        # Write the data
-        writer.writerow(data)
-
 #based on time, it returns an appropriate brightness and colour temperature
 def get_scene():
     #dictionary for all the scenes
@@ -69,10 +44,6 @@ def update_bulb(bulb_id, scene):
 def check_update(bulbs):
     current_status = b.get_api()
     new_scene = get_scene()
-
-    #log transition every heartbeat
-    if heartbeat_counter >= heartbeat_interval:
-        log_bulb_status(current_status)
 
     #update each bulb in the list
     for i in range(len(bulbs)):
@@ -137,6 +108,3 @@ while True:
 
 #next update
 #transistions
-
-#one get api per all 6 tickers
-#
