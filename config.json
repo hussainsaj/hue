@@ -30,7 +30,8 @@
     "07:00":"Energize",
     "10:00":"Concentrate",
     "20:00":"Read",
-    "22:00":"Relax"
+    "22:00":"Relax",
+    "23:59":"Rest"
   },
   "bulbs": [7,8,9],
   "transistion_period": 10,

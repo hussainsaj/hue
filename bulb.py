@@ -5,9 +5,41 @@ from phue import Bridge
 from datetime import datetime
 import time
 import json
+import math
 
 #based on time, it returns an appropriate brightness and colour temperature
 def get_scene():
+    #function to calculate the time difference
+    def calculate_time_difference(time1, time2):
+        time_format = "%H:%M"
+
+        # Convert the time strings to datetime objects
+        time1 = datetime.strptime(time1, time_format)
+        time2 = datetime.strptime(time2, time_format)
+
+        # Calculate the difference in minutes
+        difference = time2 - time1
+        difference_in_minutes = int(difference.total_seconds() / 60)
+
+        return abs(difference_in_minutes)
+
+    #creates a new scene
+    def calculate_scene(difference, current_scene, next_scene):
+        new_scene = {}
+
+        for key in current_scene:
+            interpolation_factor = difference / config['transistion_period']
+            
+            # Interpolate the value for each key
+            current_value = current_scene[key]
+            next_value = next_scene[key]
+            new_value = current_value + (next_value - current_value) * interpolation_factor
+            
+            # Assign the new value to the new_scene
+            new_scene[key] = math.floor(new_value)
+
+        return current_scene
+
     #dictionary for all the scenes
     scenes = config['scenes']
 
@@ -18,15 +50,23 @@ def get_scene():
     sorted_times = sorted(time_slots.keys())
 
     #default value, last scene in the list
-    scene = time_slots[sorted_times[-1]]
+    new_scene = scenes[time_slots[sorted_times[-1]]]
 
     #finds the current scene
     for i in range(len(sorted_times)):
         if now < sorted_times[i]:
-            scene = time_slots[sorted_times[i-1]]
+            difference = calculate_time_difference(now, sorted_times[i])
+
+            #Calculate transition if within transition period
+            #if difference <= config['transistion_period']:
+            if difference <= 50:
+                new_scene = calculate_scene(difference, scenes[time_slots[sorted_times[i-1]]], scenes[time_slots[sorted_times[i]]])
+            else:
+                new_scene = scenes[time_slots[sorted_times[i-1]]]
+
             break
 
-    return scenes[scene]
+    return new_scene
 
 #updates the bulb state
 def update_bulb(bulb_id, scene):
@@ -107,4 +147,4 @@ while True:
 
 
 #next update
-#transistions
+#different schedules for different bulbs
