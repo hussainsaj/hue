@@ -32,7 +32,7 @@ def get_scene():
             # Interpolate the value for each key
             current_value = current_scene[key]
             next_value = next_scene[key]
-            new_value = current_value + (next_value - current_value) * interpolation_factor
+            new_value = next_value + ((current_value - next_value) * interpolation_factor)
             
             # Assign the new value to the new_scene
             new_scene[key] = math.floor(new_value)
