@@ -58,8 +58,7 @@ def get_scene():
             difference = calculate_time_difference(now, sorted_times[i])
 
             #Calculate transition if within transition period
-            #if difference <= config['transistion_period']:
-            if difference <= 50:
+            if difference <= config['transistion_period']:
                 new_scene = calculate_scene(difference, scenes[time_slots[sorted_times[i-1]]], scenes[time_slots[sorted_times[i]]])
             else:
                 new_scene = scenes[time_slots[sorted_times[i-1]]]
