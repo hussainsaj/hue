@@ -8,7 +8,7 @@ import json
 import math
 
 #based on time, it returns an appropriate brightness and colour temperature
-def get_scene():
+def get_scene(bulb_group):
     #function to calculate the time difference
     def calculate_time_difference(time1, time2):
         time_format = "%H:%M"
@@ -42,7 +42,7 @@ def get_scene():
     #dictionary for all the scenes
     scenes = config['scenes']
 
-    time_slots = config['time_slots']
+    time_slots = config['time_slot_groups'][bulb_group]
 
     now = datetime.now().strftime("%H:%M")
 
@@ -68,24 +68,20 @@ def get_scene():
 
 #updates the bulb state
 def update_bulb(bulb_id, scene):
-    command =  {
-        'on' : True,
-        'bri' : scene['brightness'],
-        'ct' : scene['colour_temperature']
-    }
-
-    b.set_light(bulb_id, command)
+    b.set_light(bulb_id, scene)
+    b.set_light(bulb_id,'on', True)
 
     return
 
 #checks for any changes for each bulb
 def check_update(bulbs):
     current_status = b.get_api()
-    new_scene = get_scene()
 
     #update each bulb in the list
     for i in range(len(bulbs)):
         bulb = bulbs[i]
+
+        new_scene = get_scene(bulbs[i]['group'])
 
         current_state = current_status['lights'][str(bulb['id'])]['state']['reachable']
 
@@ -99,7 +95,7 @@ def check_update(bulbs):
             bulb['previous_state'] = current_state
             bulb['previous_scene'] = new_scene
 
-            print (current_status['lights'][str(bulb['id'])]['name'], new_scene)
+            print (current_status['lights'][str(bulb['id'])]['name'], ' - ', new_scene)
 
         #if the bulb has turned off
         elif (current_state == False and current_state != bulb['previous_state']):
@@ -118,7 +114,8 @@ bulbs = config['bulbs']
 
 for i in range(len(bulbs)):
     bulbs[i] = {
-        'id': bulbs[i],
+        'id': bulbs[i]['id'],
+        'group': bulbs[i]['group'],
         'previous_state': None,
         'previous_scene': None
     }
@@ -142,7 +139,3 @@ while True:
     if heartbeat_counter >= heartbeat_interval:
         print('heartbeat', datetime.now())
         heartbeat_counter = 0
-
-
-#next update
-#different schedules for different bulbs
