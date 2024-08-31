@@ -1,6 +1,24 @@
 #documentations
 #https://github.com/studioimaginaire/phue
 
+import socket
+import time
+
+# Function to check network connectivity
+def wait_for_network():
+    while True:
+        try:
+            # Attempt to create a socket connection to Google's DNS server
+            socket.create_connection(("8.8.8.8", 53), timeout=5)
+            print("Network connected.")
+            break
+        except OSError:
+            print("Network not available, waiting...")
+            time.sleep(5)
+
+# Wait for the network to be available
+wait_for_network()
+
 from phue import Bridge
 from datetime import datetime
 import time
