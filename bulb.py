@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 import json
 import math
+import os
 
 #based on time, it returns an appropriate brightness and colour temperature
 def get_scene(bulb_group):
@@ -106,8 +107,14 @@ def check_update(bulbs):
     
     return bulbs
 
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the full path to the config.json file
+config_path = os.path.join(script_dir, 'config.json')
+
 #load config
-with open('config.json') as file:
+with open(config_path) as file:
     config = json.load(file)
 
 bulbs = config['bulbs']
@@ -123,6 +130,11 @@ for i in range(len(bulbs)):
 #connect to the bridge
 b = Bridge(config['ip_address'])
 b.connect()
+
+current_status = b.get_api()
+b.set_light(10, 'bri', 254)
+b.set_light(10,'on', True)
+
 
 heartbeat_counter = 0
 heartbeat_interval = config['heartbeat_interval']/config['optimisation']['polling_interval']
