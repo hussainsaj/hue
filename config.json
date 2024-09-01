@@ -76,5 +76,5 @@
     "update_interval": 1,
     "max_retries": 3
   },
-  "heartbeat_interval": 60
+  "heartbeat_interval": 600
 }
