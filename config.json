@@ -34,47 +34,34 @@
       "bri": 45
     }
   },
-  "bulbs": [
-    {
-      "id": 7,
-      "group":"standard"
+  "groups": {
+    "standard": {
+      "bulbs": [7,8,9],
+      "time_slots": {
+        "00:00":"Rest",
+        "07:00":"Energize",
+        "10:00":"Concentrate",
+        "20:00":"Read",
+        "22:00":"Relax",
+        "23:59":"Rest"
+      }
     },
-    {
-      "id": 8,
-      "group":"standard"
-    },
-    {
-      "id": 9,
-      "group":"standard"
-    },
-    {
-      "id": 10,
-      "group":"lamp"
-    }
-  ],
-  "time_slot_groups": {
-    "standard":{
-      "00:00":"Rest",
-      "07:00":"Energize",
-      "10:00":"Concentrate",
-      "20:00":"Read",
-      "22:00":"Relax",
-      "23:59":"Rest"
-    },
-    "lamp":{
-      "00:00":"Night",
-      "07:00":"Dimmed",
-      "08:00":"Bright",
-      "20:00":"Dimmed",
-      "22:00":"Night"
+    "lamp": {
+      "bulbs": [10],
+      "time_slots": {
+        "00:00":"Night",
+        "07:00":"Dimmed",
+        "08:00":"Bright",
+        "20:00":"Dimmed",
+        "22:00":"Night"
+      }
     }
   },
   "transistion_period": 10,
   "ip_address":"192.168.1.2",
   "optimisation": {
     "polling_interval": 1,
-    "update_interval": 1,
-    "update_count": 3
-  },
-  "heartbeat_interval": 600
+    "update_count": 5,
+    "heartbeat_interval": 600
+  }
 }

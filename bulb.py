@@ -13,7 +13,6 @@ import socket
 def wait_for_network():
     while True:
         try:
-            # Attempt to create a socket connection to Google's DNS server
             socket.create_connection(("8.8.8.8", 53), timeout=5)
             print("Network connected.")
             break
@@ -32,17 +31,17 @@ def load_config(file_name):
     with open(config_path) as file:
         return json.load(file)
 
-def load_bulbs(bulbs):
-    for i in range(len(bulbs)):
-        bulbs[i] = {
-            'id': bulbs[i]['id'],
-            'group': bulbs[i]['group'],
-            'previous_state': None,
-            'previous_scene': None,
-            'update_count': 0
-        }
+def load_bulbs(groups):
+    for group in groups:
+        for i in range(len(groups[group]['bulbs'])):
+            groups[group]['bulbs'][i] = {
+                'id': groups[group]['bulbs'][i],
+                'previous_state': None,
+                'previous_scene': None,
+                'update_count': 0
+            }
     
-    return bulbs
+    return groups
 
 def connect_to_bridge(ip_address):
     b = Bridge(ip_address)
@@ -72,20 +71,17 @@ def get_scene(bulb_group, config):
         interpolation_factor = difference / config['transistion_period']
 
         for key in current_scene:    
-            # Interpolate the value for each key
             current_value = current_scene[key]
             next_value = next_scene[key]
             new_value = next_value + ((current_value - next_value) * interpolation_factor)
             
-            # Assign the new value to the new_scene
             new_scene[key] = math.floor(new_value)
 
         return new_scene
 
-    #dictionary for all the scenes
     scenes = config['scenes']
 
-    time_slots = config['time_slot_groups'][bulb_group]
+    time_slots = config['groups'][bulb_group]['time_slots']
 
     now = datetime.now().strftime("%H:%M")
 
@@ -116,57 +112,53 @@ def update_bulb(bulb_id, scene):
     return
 
 #checks for any changes for each bulb
-def check_update(bulbs, config):
+def check_update(groups):
     current_status = b.get_api()
-
-    #update each bulb in the list
-    for i in range(len(bulbs)):
-        bulb = bulbs[i]
-        current_state = current_status['lights'][str(bulb['id'])]['state']['reachable']
-        new_scene = get_scene(bulbs[i]['group'], config)
-        update_count = config['optimisation']['update_count']
-
-        #only update if the time based scene has changed or the bulb has turned on or the bulb hasn't been updated enough times
-        if (current_state == True and (current_state != bulb['previous_state'] or new_scene != bulb['previous_scene']) and bulb['update_count'] < update_count):
-
-            #update the light's settings multiple times
-            #for a in range(config['optimisation']['update_count']):
-            #    update_bulb(bulb['id'], new_scene)
-            #    time.sleep(config['optimisation']['update_interval'])
-            
-            update_bulb(bulb['id'], new_scene)
-            bulb['update_count'] += 1
-
-            if bulb['update_count'] >= update_count:
-                bulb['previous_state'] = current_state
-                bulb['previous_scene'] = new_scene
-                bulb['update_count'] = 0
-
-                print (current_status['lights'][str(bulb['id'])]['name'], ' - ', new_scene)
-
-        #if the bulb has turned off
-        elif (current_state == False and current_state != bulb['previous_state']):
-            bulb['previous_state'] = current_state
-            bulb['previous_scene'] = new_scene
-
-        bulbs[i] = bulb
     
-    return bulbs
+    for group in groups:
+        new_scene = get_scene(group, config)
+
+        for i in range(len(groups[group]['bulbs'])):
+            bulb = groups[group]['bulbs'][i]
+
+            reachable = current_status['lights'][str(bulb['id'])]['state']['reachable']
+            update_count = config['optimisation']['update_count']
+
+            #only update if the time based scene has changed or the bulb has turned on or the bulb hasn't been updated enough times
+            if (reachable == True and (reachable != bulb['previous_state'] or new_scene != bulb['previous_scene']) and bulb['update_count'] < update_count):
+                update_bulb(bulb['id'], new_scene)
+                bulb['update_count'] += 1
+
+                if bulb['update_count'] >= update_count:
+                    bulb['previous_state'] = reachable
+                    bulb['previous_scene'] = new_scene
+                    bulb['update_count'] = 0
+
+                    print (current_status['lights'][str(bulb['id'])]['name'], ' - ', new_scene)
+
+            #if the bulb has turned off
+            elif (reachable == False and reachable != bulb['previous_state']):
+                bulb['previous_state'] = reachable
+                bulb['previous_scene'] = new_scene
+
+            groups[group]['bulbs'][i] = bulb
+    
+    return groups
 
 if __name__ == "__main__":
     wait_for_network()    
     config = load_config('config.json')
-    bulbs = load_bulbs(config['bulbs'])
+    groups = load_bulbs(config['groups'])
     b = connect_to_bridge(config['ip_address'])
     
-    heartbeat_counter = 0
-    heartbeat_interval = config['heartbeat_interval']/config['optimisation']['polling_interval']
     polling_interval = config['optimisation']['polling_interval']
+    heartbeat_interval = config['optimisation']['heartbeat_interval']/polling_interval
+    heartbeat_counter = 0
 
     while True:
         time.sleep(polling_interval)
         try:
-            bulbs = check_update(bulbs, config)
+            groups = check_update(groups)
         except Exception as e:
             print(f"Error checking bulb: {str(e)}")
 
@@ -174,3 +166,20 @@ if __name__ == "__main__":
         if heartbeat_counter >= heartbeat_interval:
             print('heartbeat', datetime.now())
             heartbeat_counter = 0
+        
+        #logging
+        #time.sleep(30)
+        #import csv
+        #def save_light_data(time, brightness, hue, saturation, file_name='light_data.csv'):
+        #    file_exists = os.path.isfile(file_name)
+        #    with open(file_name, mode='a', newline='') as file:
+        #        writer = csv.writer(file)
+        #        if not file_exists:
+        #            writer.writerow(['Time', 'Brightness', 'Hue', 'Saturation'])
+        #        writer.writerow([time, brightness, hue, saturation])
+        #current_status = b.get_api()['lights']['4']['state']
+        #print(datetime.now().strftime("%H:%M:%S"), current_status)
+        #save_light_data(datetime.now().strftime("%H:%M:%S"), current_status['bri'], current_status['hue'], current_status['sat'])
+
+        #manual update
+        #update_bulb(4, {"bri": 27, "hue": 61129, "sat": 190})
