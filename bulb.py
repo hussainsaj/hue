@@ -2,12 +2,13 @@
 #https://github.com/studioimaginaire/phue
 
 from phue import Bridge
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import json
 import math
 import os
 import socket
+import numpy as np
 
 # Function to check network connectivity
 def wait_for_network():
@@ -145,6 +146,49 @@ def check_update(groups):
     
     return groups
 
+def check_automation():
+    # Updated interpolate function with a customizable time window
+    def interpolate_values(target_time, window_minutes, data):
+        today_str = datetime.now().strftime("%Y-%m-%d")
+        target_dt = datetime.strptime(f"{today_str} {target_time}", "%Y-%m-%d %H:%M")
+        start_dt = target_dt - timedelta(minutes=window_minutes)
+        current_dt = datetime.now()
+
+        # Check if current time is within the range
+        if current_dt < start_dt or current_dt > target_dt:
+            return None  # Time is outside the range
+
+        # Calculate the elapsed time fraction (0 means start, 1 means target time)
+        total_seconds = (target_dt - start_dt).total_seconds()
+        elapsed_seconds = (current_dt - start_dt).total_seconds()
+        fraction = elapsed_seconds / total_seconds
+
+        # Interpolate each of brightness, hue, and saturation
+        brightness = np.interp(fraction, np.linspace(0, 1, len(data['bri'])), data['bri'])
+        hue = np.interp(fraction, np.linspace(0, 1, len(data['hue'])), data['hue'])
+        saturation = np.interp(fraction, np.linspace(0, 1, len(data['sat'])), data['sat'])
+
+        return {
+            'bri': round(brightness),
+            'hue': round(hue),
+            'sat': round(saturation)
+        }
+
+    automations = config['automations']
+
+    for automation in automations:
+        duration = automations[automation]['duration']
+        time = automations[automation]['time']
+        data = automations[automation]['data']
+
+        scene = interpolate_values(time, duration, data)
+        
+        if scene is not None:
+            for i in range (len(automations[automation]['bulbs'])):
+                update_bulb(automations[automation]['bulbs'][i], scene)
+    
+    return
+
 if __name__ == "__main__":
     wait_for_network()    
     config = load_config('config.json')
@@ -157,10 +201,16 @@ if __name__ == "__main__":
 
     while True:
         time.sleep(polling_interval)
+
         try:
             groups = check_update(groups)
         except Exception as e:
             print(f"Error checking bulb: {str(e)}")
+        
+        try:
+            check_automation()
+        except Exception as e:
+            print(f"Error with automation: {str(e)}")
 
         heartbeat_counter += 1
         if heartbeat_counter >= heartbeat_interval:
