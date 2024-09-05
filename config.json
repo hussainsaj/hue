@@ -72,9 +72,9 @@
   "transistion_period": 10,
   "ip_address":"192.168.1.2",
   "optimisation": {
-    "polling_interval": 5,
+    "polling_interval": 1,
     "update_interval": 1,
-    "max_retries": 3
+    "update_count": 3
   },
   "heartbeat_interval": 600
 }

@@ -1,8 +1,13 @@
 #documentations
 #https://github.com/studioimaginaire/phue
 
-import socket
+from phue import Bridge
+from datetime import datetime
 import time
+import json
+import math
+import os
+import socket
 
 # Function to check network connectivity
 def wait_for_network():
@@ -16,18 +21,37 @@ def wait_for_network():
             print("Network not available, waiting...")
             time.sleep(5)
 
-# Wait for the network to be available
-wait_for_network()
+def load_config(file_name):
+    # Get the directory of the current script
+    script_dir = os.path.dirname(os.path.abspath(__file__))
 
-from phue import Bridge
-from datetime import datetime
-import time
-import json
-import math
-import os
+    # Construct the full path to the config.json file
+    config_path = os.path.join(script_dir, file_name)
+
+    #load config
+    with open(config_path) as file:
+        return json.load(file)
+
+def load_bulbs(bulbs):
+    for i in range(len(bulbs)):
+        bulbs[i] = {
+            'id': bulbs[i]['id'],
+            'group': bulbs[i]['group'],
+            'previous_state': None,
+            'previous_scene': None,
+            'update_count': 0
+        }
+    
+    return bulbs
+
+def connect_to_bridge(ip_address):
+    b = Bridge(ip_address)
+    b.connect()
+
+    return b
 
 #based on time, it returns an appropriate brightness and colour temperature
-def get_scene(bulb_group):
+def get_scene(bulb_group, config):
     #function to calculate the time difference
     def calculate_time_difference(time1, time2):
         time_format = "%H:%M"
@@ -89,32 +113,36 @@ def get_scene(bulb_group):
 def update_bulb(bulb_id, scene):
     b.set_light(bulb_id, scene)
     b.set_light(bulb_id,'on', True)
-
     return
 
 #checks for any changes for each bulb
-def check_update(bulbs):
+def check_update(bulbs, config):
     current_status = b.get_api()
 
     #update each bulb in the list
     for i in range(len(bulbs)):
         bulb = bulbs[i]
-
-        new_scene = get_scene(bulbs[i]['group'])
-
         current_state = current_status['lights'][str(bulb['id'])]['state']['reachable']
+        new_scene = get_scene(bulbs[i]['group'], config)
+        update_count = config['optimisation']['update_count']
 
-        #only update if the time based scene has changed or the bulb has turned on
-        if (current_state == True and (current_state != bulb['previous_state'] or new_scene != bulb['previous_scene'])):
+        #only update if the time based scene has changed or the bulb has turned on or the bulb hasn't been updated enough times
+        if (current_state == True and (current_state != bulb['previous_state'] or new_scene != bulb['previous_scene']) and bulb['update_count'] < update_count):
+
             #update the light's settings multiple times
-            for a in range(config['optimisation']['max_retries']):
-                update_bulb(bulb['id'], new_scene)
-                time.sleep(config['optimisation']['update_interval'])
+            #for a in range(config['optimisation']['update_count']):
+            #    update_bulb(bulb['id'], new_scene)
+            #    time.sleep(config['optimisation']['update_interval'])
             
-            bulb['previous_state'] = current_state
-            bulb['previous_scene'] = new_scene
+            update_bulb(bulb['id'], new_scene)
+            bulb['update_count'] += 1
 
-            print (current_status['lights'][str(bulb['id'])]['name'], ' - ', new_scene)
+            if bulb['update_count'] >= update_count:
+                bulb['previous_state'] = current_state
+                bulb['previous_scene'] = new_scene
+                bulb['update_count'] = 0
+
+                print (current_status['lights'][str(bulb['id'])]['name'], ' - ', new_scene)
 
         #if the bulb has turned off
         elif (current_state == False and current_state != bulb['previous_state']):
@@ -125,47 +153,24 @@ def check_update(bulbs):
     
     return bulbs
 
-# Get the directory of the current script
-script_dir = os.path.dirname(os.path.abspath(__file__))
+if __name__ == "__main__":
+    wait_for_network()    
+    config = load_config('config.json')
+    bulbs = load_bulbs(config['bulbs'])
+    b = connect_to_bridge(config['ip_address'])
+    
+    heartbeat_counter = 0
+    heartbeat_interval = config['heartbeat_interval']/config['optimisation']['polling_interval']
+    polling_interval = config['optimisation']['polling_interval']
 
-# Construct the full path to the config.json file
-config_path = os.path.join(script_dir, 'config.json')
+    while True:
+        time.sleep(polling_interval)
+        try:
+            bulbs = check_update(bulbs, config)
+        except Exception as e:
+            print(f"Error checking bulb: {str(e)}")
 
-#load config
-with open(config_path) as file:
-    config = json.load(file)
-
-bulbs = config['bulbs']
-
-for i in range(len(bulbs)):
-    bulbs[i] = {
-        'id': bulbs[i]['id'],
-        'group': bulbs[i]['group'],
-        'previous_state': None,
-        'previous_scene': None
-    }
-
-#connect to the bridge
-b = Bridge(config['ip_address'])
-b.connect()
-
-current_status = b.get_api()
-b.set_light(10, 'bri', 254)
-b.set_light(10,'on', True)
-
-
-heartbeat_counter = 0
-heartbeat_interval = config['heartbeat_interval']/config['optimisation']['polling_interval']
-
-while True:
-    time.sleep(config['optimisation']['polling_interval'])
-
-    try:
-        bulbs = check_update(bulbs)
-    except Exception as e:
-        print(f"Error checking bulb: {str(e)}")
-
-    heartbeat_counter += 1
-    if heartbeat_counter >= heartbeat_interval:
-        print('heartbeat', datetime.now())
-        heartbeat_counter = 0
+        heartbeat_counter += 1
+        if heartbeat_counter >= heartbeat_interval:
+            print('heartbeat', datetime.now())
+            heartbeat_counter = 0
