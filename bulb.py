@@ -108,8 +108,8 @@ def get_scene(bulb_group, config):
 
 #updates the bulb state
 def update_bulb(bulb_id, scene):
-    b.set_light(bulb_id, scene)
     b.set_light(bulb_id,'on', True)
+    b.set_light(bulb_id, scene)
     return
 
 #checks for any changes for each bulb
@@ -205,12 +205,12 @@ if __name__ == "__main__":
         try:
             groups = check_update(groups)
         except Exception as e:
-            print(f"Error checking bulb: {str(e)}")
+            print(f"Error checking bulb: {str(e)}", datetime.now())
         
         try:
             check_automation()
         except Exception as e:
-            print(f"Error with automation: {str(e)}")
+            print(f"Error with automation: {str(e)}", datetime.now())
 
         heartbeat_counter += 1
         if heartbeat_counter >= heartbeat_interval:
