@@ -92,9 +92,9 @@ def check_update(groups, current_status):
             return abs(difference_in_minutes)
 
         #creates a new scene
-        def calculate_scene(difference, current_scene, next_scene):
+        def calculate_scene(difference, current_scene, next_scene, transistion_period):
             new_scene = {}
-            interpolation_factor = difference / config['transistion_period']
+            interpolation_factor = difference / transistion_period
 
             for key in current_scene:    
                 current_value = current_scene[key]
@@ -108,6 +108,7 @@ def check_update(groups, current_status):
         scenes = config['scenes']
 
         time_slots = config['groups'][bulb_group]['time_slots']
+        transistion_period = config['groups'][bulb_group]['transistion_period']
 
         now = datetime.now().strftime("%H:%M")
 
@@ -122,8 +123,8 @@ def check_update(groups, current_status):
                 difference = calculate_time_difference(now, sorted_times[i])
 
                 #Calculate transition if within transition period
-                if difference <= config['transistion_period']:
-                    new_scene = calculate_scene(difference, scenes[time_slots[sorted_times[i-1]]], scenes[time_slots[sorted_times[i]]])
+                if difference <= transistion_period:
+                    new_scene = calculate_scene(difference, scenes[time_slots[sorted_times[i-1]]], scenes[time_slots[sorted_times[i]]], transistion_period)
                 else:
                     new_scene = scenes[time_slots[sorted_times[i-1]]]
 
