@@ -228,4 +228,4 @@ if __name__ == "__main__":
         #save_light_data(datetime.now().strftime("%H:%M:%S"), current_status['bri'], current_status['hue'], current_status['sat'])
 
         #manual update
-        #update_bulb(4, {"bri": 27, "hue": 61129, "sat": 190})
+        #b.set_light(4, {"bri": 254, "hue": 41440, "sat": 75})
