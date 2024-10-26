@@ -57,7 +57,9 @@ def update_bulb(bulb, scene, current_status):
     #only update if the time based scene has changed or the bulb has turned on or the bulb hasn't been updated enough times
     if (reachable == True and (reachable != bulb['previous_state'] or scene != bulb['previous_scene']) and bulb['update_count'] < update_count):
         b.set_light(bulb['id'], scene)
-        b.set_light(bulb['id'], 'on', True)
+
+        if bulb['update_count'] >= 1:
+            b.set_light(bulb['id'], 'on', True)
 
         bulb['update_count'] += 1
 
