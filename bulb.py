@@ -54,12 +54,14 @@ def update_bulb(bulb, scene, current_status):
     reachable = current_status['lights'][str(bulb['id'])]['state']['reachable']
     update_count = config['optimisation']['update_count']
 
+    scene['on'] = True
+
     #only update if the time based scene has changed or the bulb has turned on or the bulb hasn't been updated enough times
     if (reachable == True and (reachable != bulb['previous_state'] or scene != bulb['previous_scene']) and bulb['update_count'] < update_count):
         b.set_light(bulb['id'], scene)
 
-        if bulb['update_count'] >= 1:
-            b.set_light(bulb['id'], 'on', True)
+        #if bulb['update_count'] >= 1:
+        #    b.set_light(bulb['id'], 'on', True)
 
         bulb['update_count'] += 1
 
@@ -199,7 +201,11 @@ if __name__ == "__main__":
     while True:
         time.sleep(polling_interval)
 
-        current_status = b.get_api()
+        try:
+            current_status = b.get_api()
+        except Exception as e:
+            print(f"Error checking status: {str(e)}")
+            continue
 
         try:
             groups = check_update(groups, current_status)
