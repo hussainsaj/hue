@@ -61,7 +61,7 @@
   },
   "automations": {
     "sunrise": {
-      "bulbs": [1, 4],
+      "bulbs": [4],
       "duration": 30,
       "time": "08:00",
       "data": {
