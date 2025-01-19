@@ -35,11 +35,23 @@
     }
   },
   "groups": {
-    "standard": {
-      "bulbs": [7, 8, 9],
+    "standard_downstairs": {
+      "bulbs": [9, 8],
       "time_slots": {
         "00:00":"Rest",
-        "07:00":"Energize",
+        "06:00":"Energize",
+        "10:00":"Concentrate",
+        "20:00":"Read",
+        "22:00":"Relax",
+        "23:59":"Rest"
+      },
+      "transistion_period": 10
+    },
+    "standard_upstairs": {
+      "bulbs": [7],
+      "time_slots": {
+        "00:00":"Rest",
+        "08:00":"Energize",
         "10:00":"Concentrate",
         "20:00":"Read",
         "22:00":"Relax",
@@ -61,7 +73,7 @@
   },
   "automations": {
     "sunrise": {
-      "bulbs": [4],
+      "bulbs": [1, 4],
       "duration": 30,
       "time": "08:00",
       "data": {
