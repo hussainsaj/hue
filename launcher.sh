@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Activate the virtual environment
-source /home/hussain/Desktop/hue/venv/bin/activate
-
 # Change to the hue directory
 cd /home/hussain/Desktop/hue
 
