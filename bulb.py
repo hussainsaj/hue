@@ -14,10 +14,10 @@ def wait_for_network():
     while True:
         try:
             socket.create_connection(("8.8.8.8", 53), timeout=5)
-            print(f"{datetime.now().strftime("%H:%M:%S")} - Network connected.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Network connected.")
             break
         except OSError:
-            print(f"{datetime.now().strftime("%H:%M:%S")} - Network not available, waiting...")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Network not available, waiting...")
             time.sleep(5)
 
 def load_config(file_name):
@@ -67,7 +67,7 @@ def update_bulb(bulb, scene, current_status):
             bulb['previous_scene'] = scene
             bulb['update_count'] = 0
 
-            print(f"{datetime.now().strftime("%H:%M:%S")} - Updated: {current_status['lights'][str(bulb['id'])]['name']} - {scene}")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Updated: {current_status['lights'][str(bulb['id'])]['name']} - {scene}")
 
     #if the bulb has turned off
     elif (reachable == False and reachable != bulb['previous_state']):
@@ -201,22 +201,22 @@ if __name__ == "__main__":
         try:
             current_status = b.get_api()
         except Exception as e:
-            print(f"{datetime.now().strftime("%H:%M:%S")} - Bridge not connected.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Bridge not connected.")
             continue
 
         try:
             groups = check_update(groups, current_status)
         except Exception as e:
-            print(f"{datetime.now().strftime("%H:%M:%S")} - Error updating bulbs.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs.")
         
         try:
             check_automation(automations, current_status)
         except Exception as e:
-            print(f"{datetime.now().strftime("%H:%M:%S")} - Error updating automations.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating automations.")
 
         heartbeat_counter += 1
         if heartbeat_counter >= heartbeat_interval:
-            print(f"{datetime.now().strftime("%H:%M:%S")} - Heartbeat")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Heartbeat")
             heartbeat_counter = 0
         
         #logging
@@ -230,8 +230,8 @@ if __name__ == "__main__":
         #            writer.writerow(['Time', 'Brightness', 'Hue', 'Saturation'])
         #        writer.writerow([time, brightness, hue, saturation])
         #current_status = b.get_api()['lights']['4']['state']
-        #print(datetime.now().strftime("%H:%M:%S"), current_status)
-        #save_light_data(datetime.now().strftime("%H:%M:%S"), current_status['bri'], current_status['hue'], current_status['sat'])
+        #print(datetime.now().strftime('%Y-%m-%d %H:%M'), current_status)
+        #save_light_data(datetime.now().strftime('%Y-%m-%d %H:%M'), current_status['bri'], current_status['hue'], current_status['sat'])
 
         #manual update
         #b.set_light(4, {"bri": 254, "hue": 41440, "sat": 75})
