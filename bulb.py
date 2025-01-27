@@ -14,10 +14,10 @@ def wait_for_network():
     while True:
         try:
             socket.create_connection(("8.8.8.8", 53), timeout=5)
-            print("Network connected.")
+            print(f"{datetime.now().strftime("%H:%M:%S")} - Network connected.")
             break
         except OSError:
-            print("Network not available, waiting...")
+            print(f"{datetime.now().strftime("%H:%M:%S")} - Network not available, waiting...")
             time.sleep(5)
 
 def load_config(file_name):
@@ -60,9 +60,6 @@ def update_bulb(bulb, scene, current_status):
     if (reachable == True and (reachable != bulb['previous_state'] or scene != bulb['previous_scene']) and bulb['update_count'] < update_count):
         b.set_light(bulb['id'], scene)
 
-        #if bulb['update_count'] >= 1:
-        #    b.set_light(bulb['id'], 'on', True)
-
         bulb['update_count'] += 1
 
         if bulb['update_count'] >= update_count:
@@ -70,7 +67,7 @@ def update_bulb(bulb, scene, current_status):
             bulb['previous_scene'] = scene
             bulb['update_count'] = 0
 
-            print (current_status['lights'][str(bulb['id'])]['name'], ' - ', scene)
+            print(f"{datetime.now().strftime("%H:%M:%S")} - Updated: {current_status['lights'][str(bulb['id'])]['name']} - {scene}")
 
     #if the bulb has turned off
     elif (reachable == False and reachable != bulb['previous_state']):
@@ -204,22 +201,22 @@ if __name__ == "__main__":
         try:
             current_status = b.get_api()
         except Exception as e:
-            print(f"Error checking status: {str(e)}")
+            print(f"{datetime.now().strftime("%H:%M:%S")} - Bridge not connected.")
             continue
 
         try:
             groups = check_update(groups, current_status)
         except Exception as e:
-            print(f"Error checking bulb: {str(e)}")
+            print(f"{datetime.now().strftime("%H:%M:%S")} - Error updating bulbs.")
         
         try:
             check_automation(automations, current_status)
         except Exception as e:
-            print(f"Error with automation: {str(e)}")
+            print(f"{datetime.now().strftime("%H:%M:%S")} - Error updating automations.")
 
         heartbeat_counter += 1
         if heartbeat_counter >= heartbeat_interval:
-            print('heartbeat', datetime.now())
+            print(f"{datetime.now().strftime("%H:%M:%S")} - Heartbeat")
             heartbeat_counter = 0
         
         #logging
