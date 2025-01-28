@@ -97,7 +97,11 @@ def check_update(groups, current_status):
             new_scene = {}
             interpolation_factor = difference / transistion_period
 
-            for key in current_scene:    
+            for key in current_scene:
+                if key == 'on':
+                    new_scene[key] = True
+                    continue
+                
                 current_value = current_scene[key]
                 next_value = next_scene[key]
                 new_value = next_value + ((current_value - next_value) * interpolation_factor)
@@ -203,11 +207,12 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Bridge not connected.")
             continue
-
-        try:
-            groups = check_update(groups, current_status)
-        except Exception as e:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs - ", e)
+        
+        groups = check_update(groups, current_status)
+        #try:
+        #    
+        #except Exception as e:
+        #    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs - ", e)
         
         try:
             check_automation(automations, current_status)
