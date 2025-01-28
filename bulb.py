@@ -207,12 +207,12 @@ if __name__ == "__main__":
         try:
             groups = check_update(groups, current_status)
         except Exception as e:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs - ", e)
         
         try:
             check_automation(automations, current_status)
         except Exception as e:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating automations.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating automations.", e)
 
         heartbeat_counter += 1
         if heartbeat_counter >= heartbeat_interval:
