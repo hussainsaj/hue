@@ -53,11 +53,12 @@ def connect_to_bridge(ip_address):
 def update_bulb(bulb, scene, current_status):
     reachable = current_status['lights'][str(bulb['id'])]['state']['reachable']
     update_count = config['optimisation']['update_count']
+    on = current_status['lights'][str(bulb['id'])]['state']['on']
 
     scene['on'] = True
 
     #only update if the time based scene has changed or the bulb has turned on or the bulb hasn't been updated enough times
-    if (reachable == True and (reachable != bulb['previous_state'] or scene != bulb['previous_scene']) and bulb['update_count'] < update_count):
+    if (reachable == True and (reachable != bulb['previous_state'] or scene != bulb['previous_scene'] or on == False) and bulb['update_count'] < update_count):
         b.set_light(bulb['id'], scene)
 
         bulb['update_count'] += 1
@@ -208,11 +209,10 @@ if __name__ == "__main__":
             print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Bridge not connected.")
             continue
         
-        groups = check_update(groups, current_status)
-        #try:
-        #    
-        #except Exception as e:
-        #    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs - ", e)
+        try:
+            groups = check_update(groups, current_status)
+        except Exception as e:
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs - ", e)
         
         try:
             check_automation(automations, current_status)
