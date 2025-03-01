@@ -178,6 +178,11 @@ def check_automation(automations, current_status):
         duration = automations[automation]['duration']
         time = automations[automation]['time']
         data = automations[automation]['data']
+        active_days = automations[automation]['active_days']
+
+        # Check if the automation should run today
+        if datetime.now().weekday() not in active_days:
+            continue
 
         scene = interpolate_values(time, duration, data)
         
