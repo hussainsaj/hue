@@ -73,7 +73,7 @@
   },
   "automations": {
     "sunrise": {
-      "bulbs": [1],
+      "bulbs": [1, 4],
       "duration": 30,
       "time": "08:00",
       "active_days": [0, 1, 2, 3, 4],
