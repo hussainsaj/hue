@@ -84,7 +84,7 @@
       }
     },
     "sehri": {
-      "bulbs": [1, 4],
+      "bulbs": [1],
       "duration": 10,
       "time": "04:30",
       "active_days": [0, 1, 2, 3, 4, 5, 6],
