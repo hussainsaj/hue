@@ -211,7 +211,8 @@ if __name__ == "__main__":
         try:
             current_status = b.get_api()
         except Exception as e:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Bridge not connected.")
+            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Bridge not connected.", e)
+            time.sleep(5)
             continue
         
         try:
