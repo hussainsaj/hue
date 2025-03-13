@@ -44,9 +44,14 @@ def load_bulbs(groups):
     return groups
 
 def connect_to_bridge(ip_address):
-    b = Bridge(ip_address)
-    b.connect()
-
+    try:
+        b = Bridge(ip_address)
+        b.connect()
+    except Exception as e:
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Failed to connect to the bridge. Retrying in 1 minute", e)
+        time.sleep(60)
+        connect_to_bridge(ip_address)
+    
     return b
 
 #updates the bulb state
@@ -155,7 +160,7 @@ def check_automation(automations, current_status):
         current_dt = datetime.now()
 
         # Check if current time is within the range
-        if current_dt < start_dt or current_dt > target_dt:
+        if current_dt < start_dt or current_dt > target_dt - timedelta(minutes=1):
             return None  # Time is outside the range
 
         # Calculate the elapsed time fraction (0 means start, 1 means target time)
