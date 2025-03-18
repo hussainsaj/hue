@@ -8,16 +8,17 @@ import json
 import math
 import os
 import socket
+import logging
 
 # Function to check network connectivity
 def wait_for_network():
     while True:
         try:
             socket.create_connection(("8.8.8.8", 53), timeout=5)
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Network connected.")
+            logging.info("Network connected.")
             break
         except OSError:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Network not available, waiting...")
+            logging.error("Network not available. Waiting...")
             time.sleep(5)
 
 def load_config(file_name):
@@ -28,7 +29,7 @@ def load_config(file_name):
 # check if the config file has been modified since last checked
 def update_config(config, config_last_modified, file_name):
     if (os.path.getmtime(file_name) > config_last_modified):
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Configuration file has been modified. Reloading configuration.")
+        logging.info("Configuration file has been modified. Reloading configuration.")
         return load_config(file_name)
     else:
         return config, config_last_modified
@@ -50,7 +51,7 @@ def connect_to_bridge(ip_address):
         b = Bridge(ip_address)
         b.connect()
     except Exception as e:
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Failed to connect to the bridge. Retrying in 1 minute", e)
+        logging.exception("Failed to connect to the bridge. Retrying in 1 minute.")
         time.sleep(60)
         connect_to_bridge(ip_address)
     
@@ -75,7 +76,7 @@ def update_bulb(bulb, scene, current_status):
             bulb['previous_scene'] = scene
             bulb['update_count'] = 0
 
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Updated: {current_status['lights'][str(bulb['id'])]['name']} - {scene}")
+            logging.info(f"Updated: {current_status['lights'][str(bulb['id'])]['name']} - {scene}")
 
     #if the bulb has turned off
     elif (reachable == False and reachable != bulb['previous_state']):
@@ -200,6 +201,14 @@ def check_automation(automations, current_status):
     return
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        filename=f"logs/{datetime.now().strftime('%Y-%m-%d')}.log",
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S',
+        filemode='w'
+    )
+
     wait_for_network()    
     config, config_last_modified = load_config('config.json')
     groups = load_bulbs(config['groups'])
@@ -218,23 +227,23 @@ if __name__ == "__main__":
         try:
             current_status = b.get_api()
         except Exception as e:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Bridge not connected.", e)
+            logging.exception("Bridge not connected.")
             time.sleep(5)
             continue
         
         try:
             groups = check_update(groups, current_status)
         except Exception as e:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating bulbs - ", e)
+            logging.exception("Error updating bulbs.")
         
         try:
             check_automation(automations, current_status)
         except Exception as e:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Error updating automations.", e)
+            logging.exception("Error updating automations.")
 
         heartbeat_counter += 1
         if heartbeat_counter >= heartbeat_interval:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Heartbeat")
+            logging.info("Heartbeat")
             heartbeat_counter = 0
         
         time.sleep(polling_interval)

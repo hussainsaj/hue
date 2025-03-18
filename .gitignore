@@ -1,2 +1,4 @@
 light_data.csv
-env/
+.venv/
+.vscode/
+logs/

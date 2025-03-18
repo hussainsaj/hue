@@ -4,7 +4,7 @@
 cd /home/hussain/Desktop/hue
 
 # Activate the virtual environment
-source env/bin/activate
+source .venv/bin/activate
 
 # Run the Python script and log output
-python3 bulb.py >> logs/bulb.log 2>&1 &
+python3 bulb.py &
