@@ -21,15 +21,17 @@ def wait_for_network():
             time.sleep(5)
 
 def load_config(file_name):
-    # Get the directory of the current script
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # Construct the full path to the config.json file
-    config_path = os.path.join(script_dir, file_name)
-
     #load config
-    with open(config_path) as file:
-        return json.load(file)
+    with open(file_name) as file:
+        return json.load(file), os.path.getmtime(file_name)
+
+# check if the config file has been modified since last checked
+def update_config(config, config_last_modified, file_name):
+    if (os.path.getmtime(file_name) > config_last_modified):
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: Configuration file has been modified. Reloading configuration.")
+        return load_config(file_name)
+    else:
+        return config, config_last_modified
 
 def load_bulbs(groups):
     for group in groups:
@@ -199,7 +201,7 @@ def check_automation(automations, current_status):
 
 if __name__ == "__main__":
     wait_for_network()    
-    config = load_config('config.json')
+    config, config_last_modified = load_config('config.json')
     groups = load_bulbs(config['groups'])
     automations = load_bulbs(config['automations'])
     b = connect_to_bridge(config['ip_address'])
@@ -211,7 +213,7 @@ if __name__ == "__main__":
     current_status = None
 
     while True:
-        time.sleep(polling_interval)
+        config, config_last_modified = update_config(config, config_last_modified, 'config.json')
 
         try:
             current_status = b.get_api()
@@ -234,6 +236,8 @@ if __name__ == "__main__":
         if heartbeat_counter >= heartbeat_interval:
             print(f"{datetime.now().strftime('%Y-%m-%d %H:%M')} - Heartbeat")
             heartbeat_counter = 0
+        
+        time.sleep(polling_interval)
         
         #logging
         #time.sleep(30)
