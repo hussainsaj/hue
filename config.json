@@ -23,15 +23,6 @@
     "Nightlight": {
       "bri": 1,
       "ct": 454
-    },
-    "Bright": {
-      "bri": 203
-    },
-    "Dimmed": {
-      "bri": 77
-    },
-    "Night": {
-      "bri": 45
     }
   },
   "groups": {
@@ -60,13 +51,13 @@
       "transistion_period": 10
     },
     "lamp": {
-      "bulbs": [10],
+      "bulbs": [12],
       "time_slots": {
-        "00:00":"Night",
-        "07:00":"Dimmed",
-        "08:00":"Bright",
-        "20:00":"Dimmed",
-        "22:00":"Night"
+        "00:00":"Rest",
+        "08:00":"Energize",
+        "10:00":"Concentrate",
+        "20:00":"Read",
+        "22:00":"Relax"
       },
       "transistion_period": 10
     }
