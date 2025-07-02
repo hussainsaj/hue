@@ -201,6 +201,10 @@ def check_automation(automations, current_status):
     return
 
 if __name__ == "__main__":
+    # Ensure the 'logs' directory exists
+    os.makedirs("logs", exist_ok=True)
+
+    # Set up logging
     logging.basicConfig(
         level=logging.INFO,
         filename=f"logs/{datetime.now().strftime('%Y-%m-%d')}.log",
@@ -209,7 +213,12 @@ if __name__ == "__main__":
         filemode='w'
     )
 
-    wait_for_network()    
+    logging.info("Starting bulb automation script.")
+
+    # Wait for network connectivity before proceeding
+    wait_for_network()
+
+    # Load configuration and initialize bulbs and bridge connection
     config, config_last_modified = load_config('config.json')
     groups = load_bulbs(config['groups'])
     automations = load_bulbs(config['automations'])
@@ -221,6 +230,7 @@ if __name__ == "__main__":
 
     current_status = None
 
+    # Main loop to check for updates and apply changes
     while True:
         config, config_last_modified = update_config(config, config_last_modified, 'config.json')
 
