@@ -77,8 +77,8 @@
   },
   "ip_address":"192.168.50.116",
   "optimisation": {
-    "polling_interval": 1,
-    "update_count": 5,
-    "heartbeat_interval": 600
+    "polling_interval": 0.5,
+    "update_count": 10,
+    "heartbeat_interval": 3600
   }
 }
