@@ -9,6 +9,26 @@ import math
 import os
 import socket
 import logging
+import logging.handlers
+
+def set_up_logging():
+    log_file = "logs/hue_automation.log"
+    handler = logging.handlers.RotatingFileHandler(
+        log_file,
+        maxBytes=1024 * 512,  # 512KB per file
+        backupCount=5,  # Keep 5 backup files
+        encoding='utf-8'
+    )
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    ))
+    
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    logger.addHandler(handler)
+
+    logging.info("Starting bulb automation script.")
 
 # Function to check network connectivity
 def wait_for_network():
@@ -204,16 +224,8 @@ if __name__ == "__main__":
     # Ensure the 'logs' directory exists
     os.makedirs("logs", exist_ok=True)
 
-    # Set up logging
-    logging.basicConfig(
-        level=logging.INFO,
-        filename=f"logs/{datetime.now().strftime('%Y-%m-%d')}.log",
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S',
-        filemode='w'
-    )
-
-    logging.info("Starting bulb automation script.")
+    # Set up logging with rotation
+    set_up_logging()
 
     # Wait for network connectivity before proceeding
     wait_for_network()
