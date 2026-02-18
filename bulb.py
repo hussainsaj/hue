@@ -81,6 +81,7 @@ def connect_to_bridge(ip_address):
 def update_bulb(bulb, scene, current_status):
     reachable = current_status['lights'][str(bulb['id'])]['state']['reachable']
     update_count = config['optimisation']['update_count']
+    associations = config['associations']
     on = current_status['lights'][str(bulb['id'])]['state']['on']
 
     scene['on'] = True
@@ -88,6 +89,12 @@ def update_bulb(bulb, scene, current_status):
     #only update if the time based scene has changed or the bulb has turned on or the bulb hasn't been updated enough times
     if (reachable == True and (reachable != bulb['previous_state'] or scene != bulb['previous_scene'] or on == False) and bulb['update_count'] < update_count):
         b.set_light(bulb['id'], scene)
+
+        for association in associations:
+            if association['main_bulb'] == bulb['id']:
+                for dependent in association['associated_bulbs']:
+                    b.set_light(dependent, scene)
+
 
         bulb['update_count'] += 1
 
@@ -102,6 +109,13 @@ def update_bulb(bulb, scene, current_status):
     elif (reachable == False and reachable != bulb['previous_state']):
         bulb['previous_state'] = reachable
         bulb['previous_scene'] = scene
+
+        #turn off any associated bulbs
+        for association in associations:
+            if association['main_bulb'] == bulb['id']:
+                for dependent in association['associated_bulbs']:
+                    scene['on'] = False
+                    b.set_light(dependent, scene)
 
     return bulb
 
