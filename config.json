@@ -30,6 +30,7 @@
       "bulbs": [1, 3, 6],
       "time_slots": {
         "00:00":"Rest",
+        "03:00":"Relax",
         "06:00":"Energize",
         "10:00":"Concentrate",
         "20:00":"Read",
