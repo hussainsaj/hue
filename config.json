@@ -29,13 +29,11 @@
     "standard_downstairs": {
       "bulbs": [1, 3, 6],
       "time_slots": {
-        "00:00":"Rest",
-        "03:00":"Relax",
+        "00:00":"Relax",
         "06:00":"Energize",
         "10:00":"Concentrate",
         "20:00":"Read",
-        "22:00":"Relax",
-        "23:59":"Rest"
+        "22:00":"Relax"
       },
       "transistion_period": 10
     },
@@ -55,7 +53,7 @@
       "bulbs": [8],
       "time_slots": {
         "00:00":"Rest",
-        "08:00":"Energize",
+        "05:00":"Energize",
         "10:00":"Concentrate",
         "20:00":"Read",
         "22:00":"Relax"
