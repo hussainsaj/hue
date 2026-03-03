@@ -16,6 +16,10 @@
       "bri": 144,
       "ct": 447
     },
+    "Relax_bright": {
+      "bri": 254,
+      "ct": 447
+    },
     "Rest": {
       "bri": 90,
       "ct": 447
@@ -55,7 +59,7 @@
       "bulbs": [6],
       "time_slots": {
         "00:00":"Relax",
-        "03:00":"Read",
+        "03:00":"Relax_bright",
         "06:00":"Energize",
         "10:00":"Concentrate",
         "20:00":"Read",
