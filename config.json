@@ -47,7 +47,7 @@
         "08:00":"Energize",
         "10:00":"Concentrate",
         "20:00":"Read",
-        "22:00":"Relax",
+        "22:00":"Relax"
       },
       "transistion_period": 10
     },
