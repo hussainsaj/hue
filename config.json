@@ -33,7 +33,7 @@
     "standard_upstairs": {
       "bulbs": [2],
       "time_slots": {
-        "00:00":"Relax_bright",
+        "00:00":"Relax",
         "06:00":"Energize",
         "10:00":"Concentrate",
         "20:00":"Read",
